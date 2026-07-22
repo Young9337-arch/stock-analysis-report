@@ -1,0 +1,19 @@
+# Local QA screenshots and generated DOM snapshots
+qa-*.png
+qa-*.html
+alphavision-*.png
+litong-*.png
+
+# Local build / dependency artifacts used only for testing
+node_modules/
+dist/
+src/
+package.json
+package-lock.json
+tsconfig.json
+tsconfig.tsbuildinfo
+vite.config.ts
+
+# Local caches / share bundles
+overseas-cache.json
+stock-analysis-share.zip

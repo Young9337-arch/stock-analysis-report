@@ -1,8 +1,9 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>个股行情智能分析</title>
   <style>
     :root{--ink:#0b1220;--muted:#667085;--line:#e5e7eb;--blue:#2563eb;--red:#dc2626;--green:#059669;--amber:#b45309;--bg:#f3f6fb;--violet:#7c3aed}
@@ -157,8 +158,59 @@
     .summary small{font-size:14px!important;font-weight:900;color:#7b8798!important}.score{font-size:clamp(58px,4.6vw,84px)!important;margin:18px 0 12px!important;line-height:.9}.summary .chip{font-size:13px!important;margin-right:8px;margin-bottom:8px}
     .summary p{margin-top:16px!important;padding-top:16px;border-top:1px solid rgba(226,232,240,.86);font-size:14px!important;line-height:1.9!important;color:#263449!important;max-height:238px;overflow:auto;scrollbar-width:thin}
     .summary p::-webkit-scrollbar{width:6px}.summary p::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:99px}
-    @media(max-width:1280px){.hero{grid-template-columns:1fr!important}.quote,.hero>.card,.summary{min-height:auto!important}.metrics{grid-template-columns:repeat(3,minmax(0,1fr))!important}.metric.flowMetric{grid-column:span 3}.summary p{max-height:none}}
-  </style>
+@media(max-width:1280px){.hero{grid-template-columns:1fr!important}.quote,.hero>.card,.summary{min-height:auto!important}.metrics{grid-template-columns:repeat(3,minmax(0,1fr))!important}.metric.flowMetric{grid-column:span 3}.summary p{max-height:none}}
+/* Mobile and shared-link hardening: avoid horizontal overflow, cramped cards, and chart clipping on iPhone/Android browsers. */
+*,*::before,*::after{min-width:0}
+img,svg,canvas,iframe{max-width:100%}
+html{overflow-x:hidden;-webkit-text-size-adjust:100%}
+body{overflow-x:hidden}
+@media(max-width:760px){
+  .page{max-width:100%!important;width:100%!important;padding:max(14px,env(safe-area-inset-top)) 12px 26px!important}
+  .top{display:block!important;margin-bottom:14px!important}
+  .top>div{max-width:100%!important;overflow:hidden!important}
+  .title{max-width:100%!important;font-size:clamp(28px,8.6vw,36px)!important;line-height:1.08!important;letter-spacing:-.055em!important;word-break:break-word!important;overflow-wrap:anywhere!important}
+  .sub{display:block!important;max-width:100%!important;font-size:13px!important;line-height:1.7!important;white-space:normal!important;word-break:break-word!important;overflow-wrap:anywhere!important}
+  .toolbar{display:grid!important;grid-template-columns:1fr!important;width:100%!important;max-width:none!important;margin:14px 0 0!important;padding:10px!important;border-radius:22px!important;justify-content:stretch!important}
+  .toolbar .input,.toolbar .btn,.toolbar .chip{width:100%!important;height:48px!important;justify-content:center!important;text-align:center!important;border-radius:16px!important;font-size:15px!important}
+  .quick{grid-column:auto!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;justify-content:stretch!important;width:100%!important}
+  .quick button{min-width:0!important;width:100%!important;height:38px!important;padding:0 8px!important;font-size:13px!important}
+  .grid{gap:14px!important}
+  .hero{grid-template-columns:1fr!important;gap:14px!important;margin-top:0!important}
+  .quote,.hero>.card,.summary{min-height:auto!important;border-radius:24px!important}
+  .quote{padding:22px!important}
+  .quote .price{font-size:clamp(48px,17vw,72px)!important;margin-top:18px!important}
+  .quoteFacts{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;margin-top:20px!important}
+  .quoteFact,.quoteFact.wide{grid-column:auto!important}
+  .metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;padding:14px!important;gap:10px!important}
+  .metric{min-height:82px!important;padding:13px!important;border-radius:18px!important}
+  .metric.flowMetric{grid-column:1/-1!important}
+  .metric b{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;font-size:clamp(17px,5.3vw,23px)!important}
+  .summary{padding:22px!important}
+  .summary .score{font-size:52px!important}
+  .summary p{max-height:none!important;overflow:visible!important;font-size:14px!important}
+  .span3,.span4,.span5,.span6,.span7,.span8,.span12{grid-column:span 12!important;width:100%!important}
+  .card{width:100%!important}
+  .analysis,.news,#news.news,#worldNews.news,.levels,.timeline,.indexGrid,.marketBoard,.sourceGrid,.tvGrid,.riskGrid{grid-template-columns:1fr!important}
+  #news.news,#worldNews.news{padding:14px!important}
+  #news.news a,#worldNews.news a{min-height:auto!important;padding:18px!important}
+  .head{padding:17px 18px!important;align-items:flex-start!important;flex-wrap:wrap!important}
+  .head h2{font-size:17px!important}
+  .canvasWrap{height:auto!important;min-height:360px!important;padding:14px!important}
+  .canvas,.echart{min-height:320px!important}
+  .chartStats{grid-template-columns:repeat(2,minmax(0,1fr))!important;padding:0 14px 14px!important}
+  .monthLayout,.riskHero{grid-template-columns:1fr!important}
+  .monthChartBox{height:360px!important}
+  .monthFacts{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .overseasKGrid{grid-template-columns:1fr!important}
+  .overseasKCard{min-height:300px!important}
+  .overseasKChart{height:230px!important}
+  .footer{display:block!important;line-height:1.8!important}
+}
+@media(max-width:390px){
+  .quick{grid-template-columns:1fr!important}
+  .quoteFacts,.metrics,.monthFacts,.chartStats{grid-template-columns:1fr!important}
+}
+</style>
 </head>
 <body>
   <main class="page">

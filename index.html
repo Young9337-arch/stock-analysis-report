@@ -1,17 +1,42 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
   <meta http-equiv="refresh" content="0; url=./daily-market-report.html">
+  <link rel="canonical" href="./daily-market-report.html">
   <title>每日行情分析</title>
   <style>
-    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f3f6fb;color:#0f172a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif}
-    .box{width:min(92vw,560px);padding:34px;border:1px solid #dbe3ee;border-radius:28px;background:white;box-shadow:0 24px 70px rgba(15,23,42,.1)}
-    h1{margin:0 0 12px;font-size:28px}
-    p{margin:0 0 20px;color:#64748b;line-height:1.7}
-    a{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 18px;border-radius:14px;background:#2563eb;color:white;text-decoration:none;font-weight:800}
+    :root{color-scheme:light}
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;overflow-x:hidden}
+    body{
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom));
+      background:radial-gradient(circle at 12% -10%,rgba(47,104,216,.16),transparent 32%),linear-gradient(180deg,#fff,#f3f6fb);
+      color:#0e1726;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",Arial,sans-serif;
+      -webkit-text-size-adjust:100%;
+    }
+    .box{
+      width:min(100%,560px);
+      padding:30px;
+      border:1px solid #e1e8f2;
+      border-radius:28px;
+      background:rgba(255,255,255,.92);
+      box-shadow:0 24px 70px rgba(15,23,42,.10),inset 0 1px 0 #fff;
+    }
+    h1{margin:0 0 12px;font-size:clamp(26px,7vw,34px);letter-spacing:-.04em}
+    p{margin:0 0 22px;color:#667085;line-height:1.75}
+    a{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 18px;border-radius:999px;background:#b8914b;color:white;text-decoration:none;font-weight:900}
   </style>
+  <script>
+    window.location.replace('./daily-market-report.html' + window.location.search + window.location.hash);
+  </script>
 </head>
 <body>
   <main class="box">
