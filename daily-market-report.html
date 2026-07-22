@@ -690,6 +690,40 @@ function renderMonthKlineTrend(q,rows){const el=document.getElementById('monthTr
     async function loadAll(){const seq=++loadSeq;fundFlowData=cachedFundFlow(stockSymbol);polishToolbar();document.getElementById('updated').textContent='更新中';renderRealOverseasWidgets();ensureMarketTrend(seq);renderVerifiedWorldNews();renderNews(fallbackNews);try{lastQuote=await loadQuote(stockSymbol);[lastMinutes,lastPrevMinutes,lastMonthDaily]=await Promise.all([loadMinutes(stockSymbol),loadPrevDayMinutes(stockSymbol),loadMonthDaily(stockSymbol)]);if(seq!==loadSeq)return;disclosureRisk=defaultDisclosureRisk(stockSymbol);renderAll();ensureMarketTrend(seq);document.getElementById('updated').textContent='已更新 '+new Date().toLocaleTimeString('zh-CN',{hour12:false});loadFundFlow(stockSymbol).then(f=>{if(seq!==loadSeq)return;fundFlowData=f;refreshFundamentalPanels()}).catch(()=>{if(seq!==loadSeq)return;if(!fundFlowData)fundFlowData={unavailable:true};refreshFundamentalPanels()});loadFundamentals(stockSymbol).then(f=>{if(seq!==loadSeq)return;mergeFundamentalsIntoQuote(lastQuote,f);refreshFundamentalPanels()}).catch(()=>{});loadDisclosureData(stockSymbol).then(d=>{if(seq!==loadSeq)return;disclosureRisk=d;refreshFundamentalPanels()}).catch(()=>{});loadGlobalMarkets().catch(()=>renderGlobalMarketFallback());loadOverseasTrend().catch(()=>renderOverseasSourceCards('真实接口暂时不可用，已显示真实行情源入口。'));loadRealWorldNews().catch(()=>renderRealNewsFallback());loadNews(lastQuote.name).then(rows=>{if(seq===loadSeq)renderNews(rows)}).catch(()=>renderNews(fallbackNews))}catch(e){if(seq!==loadSeq)return;if(!lastQuote)document.getElementById('headline').textContent='主行情接口加载失败，请检查网络或点击立即查看。';renderRealNewsFallback();renderNews(fallbackNews)}}
     var bindInteractionsOld=bindInteractions;
     bindInteractions=function(){bindInteractionsOld();const input=document.getElementById('stockInput');input.addEventListener('input',()=>{clearTimeout(inputTimer);const v=cleanQuery(input.value);if(v.length>=2||/^\d{6}$/.test(v)){document.getElementById('updated').textContent='准备自动分析';inputTimer=setTimeout(()=>changeStock(),v.length===6?450:900)}})}
+    function latestMAFromHistory(rows,days){
+      const arr=(rows||[]).filter(x=>Number.isFinite(x.close));
+      if(!arr.length)return null;
+      const take=arr.slice(-Math.min(days,arr.length));
+      return take.reduce((s,x)=>s+x.close,0)/take.length;
+    }
+    function maLabelValue(v){return Number.isFinite(v)?fix(v):'--'}
+    drawMonthKlineCanvas=function(rows,m){
+      const el=document.getElementById('monthTrendEChart');if(!el)return;
+      const history=(rows||[]).filter(x=>Number.isFinite(x.close)),display=history.slice(-22);if(!display.length)return;
+      el.innerHTML='<canvas style="width:100%;height:100%;display:block"></canvas>';
+      const c=el.querySelector('canvas'),r=el.getBoundingClientRect(),dpr=window.devicePixelRatio||1,W=Math.max(1,r.width),H=Math.max(1,r.height);
+      c.width=W*dpr;c.height=H*dpr;const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
+      const pad={l:58,r:28,t:50,b:82},plotH=H-pad.t-pad.b,volH=48,idx0=history.length-display.length;
+      const ma5=movingAverageFromHistory(history,5).slice(idx0);
+      const prices=display.flatMap(x=>[x.open,x.close,x.high,x.low]).concat(ma5).filter(Number.isFinite);
+      const min=Math.min(...prices),max=Math.max(...prices),span=Math.max(.01,max-min),volMax=Math.max(...display.map(x=>x.volume||0),1),slot=(W-pad.l-pad.r)/display.length,barW=Math.max(6,Math.min(18,slot-6)),x=i=>pad.l+slot*i+slot/2,y=v=>pad.t+(max-v)/span*plotH;
+      ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);ctx.strokeStyle='#edf2f7';ctx.lineWidth=1;
+      for(let i=0;i<5;i++){const yy=pad.t+plotH*i/4;ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(W-pad.r,yy);ctx.stroke()}
+      display.forEach((row,i)=>{const up=row.close>=row.open,color=up?'#d92d20':'#079455',cx=x(i),yo=y(row.open),yc=y(row.close),yh=y(row.high),yl=y(row.low),top=Math.min(yo,yc),bh=Math.max(2,Math.abs(yc-yo));ctx.strokeStyle=color;ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(cx,yh);ctx.lineTo(cx,yl);ctx.stroke();ctx.fillStyle=color;ctx.globalAlpha=.88;ctx.fillRect(cx-barW/2,top,barW,bh);ctx.globalAlpha=1;const vh=(row.volume||0)/volMax*volH;ctx.fillStyle=up?'rgba(217,45,32,.38)':'rgba(7,148,85,.38)';ctx.fillRect(cx-barW/2,H-34-vh,barW,vh)});
+      ctx.beginPath();ma5.forEach((v,i)=>{if(!Number.isFinite(v))return;i?ctx.lineTo(x(i),y(v)):ctx.moveTo(x(i),y(v))});ctx.strokeStyle='#b8914b';ctx.lineWidth=2.4;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke();
+      ctx.fillStyle='#667085';ctx.font='700 12px '+font();ctx.fillText('日K / MA5 / 成交量',pad.l,24);ctx.fillText('近一月 '+(m.ret>=0?'+':'')+m.ret.toFixed(2)+'%',pad.l+150,24);
+      ctx.fillStyle='#b8914b';ctx.fillRect(W-pad.r-78,17,18,4);ctx.fillStyle='#667085';ctx.fillText('MA5',W-pad.r-54,22);
+      ctx.fillText('成交量',pad.l,H-12);for(let i=0;i<Math.min(display.length,6);i++){const idx=Math.round(i*(display.length-1)/5);ctx.fillText(String(display[idx].date).slice(5),x(idx)-16,H-52)}
+    }
+    renderMonthKlineTrend=function(q,rows){
+      const el=document.getElementById('monthTrendEChart'),facts=document.getElementById('monthFacts'),note=document.getElementById('monthTrendNote');if(!el||!facts)return;
+      const history=(rows||[]).filter(x=>Number.isFinite(x.close)),display=history.slice(-22),m=monthStats(display);
+      if(!m.ok){el.innerHTML='<div style="display:grid;place-items:center;height:100%;color:#667085;font-weight:800">近一个月日K数据暂时不可用</div>';facts.innerHTML='<div class="metric"><small>月线样本</small><b>不足</b></div>';if(note)note.textContent=m.note;return}
+      drawMonthKlineCanvas(history,m);
+      const ma5=latestMAFromHistory(history,5),ma20=latestMAFromHistory(history,20),ma60=latestMAFromHistory(history,60);
+      facts.innerHTML=[['近一月涨跌',(m.ret>=0?'+':'')+m.ret.toFixed(2)+'%'],['MA5',maLabelValue(ma5)],['MA20',maLabelValue(ma20)],['MA60',maLabelValue(ma60)],['高点回撤',m.drawdown.toFixed(2)+'%'],['量能比',m.volRatio.toFixed(2)+'x'],['月线评分',Math.round(m.trendScore)],['月线风险',Math.round(m.riskScore)],['上涨天数',Math.round(m.upDays*100)+'%']].map(x=>`<div class="metric"><small>${x[0]}</small><b>${x[1]}</b></div>`).join('');
+      if(note)note.textContent=`近一个月日K：图中仅保留 MA5 与成交量，MA20 / MA60 数值放在右侧数据框。${m.note} MA5 ${maLabelValue(ma5)}，MA20 ${maLabelValue(ma20)}，MA60 ${maLabelValue(ma60)}。`;
+    }
     let lastAuto='';safeRun(polishToolbar);safeRun(bindInteractions);safeRun(renderRealOverseasWidgets);setInterval(()=>{const d=new Date(),m=d.getHours()*60+d.getMinutes(),key=d.toDateString()+m;if((m===690||m===930)&&lastAuto!==key){lastAuto=key;loadAll()}document.getElementById('phase').textContent=phase()[0]},30000);loadAll();
   </script>
 </body>
