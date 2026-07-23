@@ -228,6 +228,29 @@ body{overflow-x:hidden}
   #rangeChart{height:226px!important}.monthFacts .metric{min-height:96px!important;padding:15px!important}
   .monthFacts .metric b{font-size:clamp(24px,7vw,32px)!important}
 }
+/* Phone chart refinement: retain the full data set, but give the plot—not empty card chrome—the available space. */
+@media(max-width:640px){
+  .monthPanel .head{padding-bottom:14px!important}
+  .monthLayout{padding:12px!important;gap:12px!important}
+  .monthChartBox{height:300px!important;padding:2px!important;border-radius:18px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 8px 20px rgba(15,23,42,.04)!important}
+  .monthFacts{gap:9px!important}
+  .monthFacts .metric{min-height:78px!important;padding:12px 13px!important;border-radius:16px!important}
+  .monthFacts .metric small{font-size:12px!important;line-height:1.15!important}
+  .monthFacts .metric b{margin-top:5px!important;font-size:clamp(21px,6.3vw,27px)!important;line-height:1.08!important;letter-spacing:-.035em!important}
+  .overseasKGrid{gap:12px!important}
+  .overseasKCard{min-height:0!important;padding:13px!important;border-radius:19px!important}
+  .overseasKHead{min-height:48px!important;align-items:flex-start!important}
+  .overseasKHead small{font-size:11px!important}.overseasKHead b{font-size:24px!important;line-height:1.15!important}
+  .overseasKHead a{font-size:13px!important;white-space:nowrap!important}
+  .overseasKChart{height:208px!important;border-radius:14px!important}
+  .overseasKMeta{margin-top:9px!important;font-size:12px!important;line-height:1.55!important}
+}
+@media(max-width:390px){
+  .monthChartBox{height:282px!important}
+  .monthFacts .metric{min-height:74px!important;padding:11px!important}
+  .monthFacts .metric b{font-size:22px!important}
+  .overseasKChart{height:194px!important}
+}
 </style>
 </head>
 <body>
@@ -1024,7 +1047,7 @@ function renderMonthKlineTrend(q,rows){const el=document.getElementById('monthTr
       const el=document.getElementById('minuteEChart'),data=(mins||[]).filter(x=>Number.isFinite(x.price));if(!el||!data.length)return;
       const times=data.map(x=>String(x.time).replace(/(\d{2})(\d{2})/,'$1:$2')),prices=data.map(x=>+x.price.toFixed(2)),avg=intradayAverage(prices),pct=(prices.at(-1)/q.prev-1)*100,tone=pct>=0?'#e94b55':'#179b6b',chart=echarts.getInstanceByDom(el)||echarts.init(el);
       chart.setOption({animationDuration:420,tooltip:{trigger:'axis',axisPointer:{type:'cross',lineStyle:{color:'#8ea0b8',type:'dashed'}},backgroundColor:'rgba(15,23,42,.94)',borderColor:'rgba(255,255,255,.18)',textStyle:{color:'#fff',fontFamily:font()},formatter:p=>{const i=p[0].dataIndex;return `<b>${times[i]}</b><br>价格　${fix(prices[i])}<br>分时均价　${fix(avg[i])}<br>相对昨收　${((prices[i]/q.prev-1)*100>=0?'+':'')+((prices[i]/q.prev-1)*100).toFixed(2)}%`}},legend:{top:8,right:18,itemWidth:18,itemHeight:3,textStyle:{color:'#526277',fontFamily:font(),fontWeight:800},data:['价格','分时均价']},grid:{left:58,right:88,top:50,bottom:40},xAxis:{type:'category',data:times,boundaryGap:false,axisLabel:{color:'#718096',fontFamily:font(),fontSize:11,interval:0,formatter:(v,i)=>intradayTimeLabel(v,i,times.length)},axisTick:{show:false},axisLine:{lineStyle:{color:'#dbe3ee'}}},yAxis:{type:'value',scale:true,axisLabel:{color:'#718096',fontFamily:font(),fontSize:11},splitLine:{lineStyle:{color:'#e7edf5'}},axisLine:{show:false}},series:[{name:'价格',type:'line',data:prices,symbol:'none',smooth:.2,lineStyle:{width:3.1,color:tone,cap:'round',join:'round'},areaStyle:{color:pct>=0?'rgba(233,75,85,.12)':'rgba(23,155,107,.11)'},markLine:{symbol:'none',lineStyle:{color:'#93a4b8',type:'dashed',width:1.1},label:{show:false},data:[{yAxis:q.prev}]}},{name:'分时均价',type:'line',data:avg,symbol:'none',smooth:true,lineStyle:{width:2,color:'#d58a21',cap:'round',join:'round'}}]},true);
-      chart.resize();const prevY=chart.convertToPixel({yAxisIndex:0},q.prev),labelTop=Math.max(48,Math.min(el.clientHeight-66,prevY-14));chart.setOption({graphic:[{id:'minute-prev-close-label',type:'group',left:el.clientWidth-140,top:labelTop,children:[{type:'rect',shape:{x:0,y:0,width:122,height:28,r:7},style:{fill:'rgba(255,255,255,.98)',stroke:'#a8b5c7',lineWidth:1,shadowBlur:8,shadowColor:'rgba(15,23,42,.08)'}},{type:'text',left:10,top:7,style:{text:'昨收  '+fix(q.prev),fill:'#526277',font:'800 12px '+font()}}]}]},{replaceMerge:['graphic']});
+      chart.resize();const prevY=chart.convertToPixel({yAxisIndex:0},q.prev),labelTop=Math.max(48,Math.min(el.clientHeight-86,prevY-42));chart.setOption({graphic:[{id:'minute-prev-close-label',type:'group',left:el.clientWidth-84,top:labelTop,children:[{type:'line',shape:{x1:-10,y1:38,x2:0,y2:28},style:{stroke:'#a8b5c7',lineWidth:1,opacity:.85}},{type:'roundRect',shape:{x:0,y:0,width:78,height:42,r:7},style:{fill:'rgba(255,255,255,.98)',stroke:'#a8b5c7',lineWidth:1,shadowBlur:8,shadowColor:'rgba(15,23,42,.08)'}},{type:'text',left:10,top:6,style:{text:'昨收',fill:'#718096',font:'800 11px '+font()}},{type:'text',left:10,top:21,style:{text:fix(q.prev),fill:'#3f5068',font:'800 12px '+font()}}]}]},{replaceMerge:['graphic']});
     };
     drawMarketTrendEChart=function(){
       const el=document.getElementById('marketTrendEChart');if(!el||!window.echarts)return;
