@@ -2110,6 +2110,37 @@ function renderMetrics(q,pct,amp,pos){renderQuoteFacts(q);const pctTone=pct>0?'r
       */
     }
     const renderClosingReviewReportBeforeMarketPlacement=renderClosingReviewReport;
+    function buildInstitutionalMarketAnalysis(report){
+      const indices=ensureArray(report?.market?.indices),b=report?.market?.breadth||{},t=report?.market?.turnover||{},sectors=report?.sectors||{},date=report?.requestedDate||'本交易日',valid=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)),num=v=>valid(v)?Number(v):NaN,pct=v=>valid(v)?(num(v)>=0?'+':'')+num(v).toFixed(2)+'%':'未返回',money=v=>valid(v)?fmtMoney(num(v)):'未返回',idx=indices.filter(x=>valid(x.changePercent)),sorted=idx.slice().sort((a,z)=>z.changePercent-a.changePercent),strong=sorted[0],weak=sorted.at(-1),disp=strong&&weak?num(strong.changePercent)-num(weak.changePercent):NaN,total=(num(b.advancingCount)||0)+(num(b.decliningCount)||0)+(num(b.flatCount)||0),breadthOk=b.dateMatched===true&&total>=1000,up= breadthOk?num(b.advancingCount)/total*100:NaN,down=breadthOk?num(b.decliningCount)/total*100:NaN,median=num(b.medianChangePercent),turnOk=valid(t.totalTurnover)&&(!t.tradeDate||t.tradeDate===date),chg=num(t.turnoverChangePercent),pctl=num(t.percentile20d),avg5=num(t.average5d),avg20=num(t.average20d),rank=a=>ensureArray(a).filter(x=>valid(x.changePercent)),leaders=rank(sectors.industryGainers),laggards=rank(sectors.industryLosers),conceptUp=rank(sectors.conceptGainers),conceptDown=rank(sectors.conceptLosers),tech=ensureArray(sectors.technologyMatrix).filter(x=>valid(x.changePercent)),stock=report?.stock||{},stockMove=num(report?.facts?.pct),small=idx.find(x=>String(x.name).includes('中证1000')),relative=valid(stockMove)&&small?stockMove-num(small.changePercent):NaN;
+      const indexFacts=idx.length?idx.map(x=>esc(x.name)+' '+pct(x.changePercent)+'（收 '+(valid(x.close)?num(x.close).toFixed(2):'--')+'）').join('；'):'同日主要指数未返回';
+      const style=strong&&weak?(disp>=1.5?'指数分化显著，市场定价集中于规模、行业或风险偏好差异，不能用单一指数代表全市场。':'主要指数方向较一致，系统性因素解释力较强，但仍须由市场宽度确认。'):'指数样本不足，暂不作大小盘或成长价值排序。';
+      const breadthTone=breadthOk?(down>=65?'风险释放具有广度，弱势不是少数权重造成的视觉偏差。':up>=65?'上涨获得多数股票确认，修复具有广度。':'涨跌分布未形成压倒性方向，结构选择比指数方向更重要。'):'宽度没有通过同日、全样本校验，不输出“普涨”“普跌”或“冰点”等定性。';
+      const tails=breadthOk?'涨停 '+(b.limitUpCount??'--')+' 家、跌停 '+(b.limitDownCount??'--')+' 家，涨超5% '+(b.riseAbove5PercentCount??b.above5PercentCount??'--')+' 家、跌超5% '+(b.fallBelow5PercentCount??b.below5PercentCount??'--')+' 家。':'尾部涨跌分布不可可靠计算。';
+      const liquidity=turnOk?'两市成交 '+money(t.totalTurnover)+'，较前日 '+pct(chg)+'；近5日均额 '+money(avg5)+'、近20日均额 '+money(avg20)+(valid(pctl)?'，当前处于近20日 '+pctl.toFixed(1)+'% 分位。':'。'):'成交额未与报告日同步匹配，不判断放量或缩量。';
+      const liquidityRead=turnOk?(chg<=-10?(pctl>=70?'成交虽较前日明显收缩，但绝对活跃度仍处高位，属于高换手后的边际降温。':'成交明显收缩且活跃度不高，增量资金不足，价格变化主要由存量交易完成。'):chg>=10?(pctl<=30?'成交环比扩张但仍处低分位，属于低基数修复，不能直接定义增量行情。':'成交扩张且活跃度处于中高区间，价格方向获得更充分的交易确认。'):'成交环比变化有限，需结合20日分位判断市场处于高活跃震荡还是低活跃僵持。'):'缺少可靠成交比较，资金强弱结论保持空缺。';
+      const list=(a,n=3)=>a.length?a.slice(0,n).map(x=>esc(x.name)+' '+pct(x.changePercent)+(x.leader?`（龙头 ${esc(x.leader.name)} ${pct(x.leader.changePercent)}）`:'')).join('、'):'未返回';
+      const diffusion=leaders.length&&laggards.length?'行业领涨为 '+list(leaders)+'；行业领跌为 '+list(laggards)+'。概念领涨为 '+list(conceptUp)+'；概念领跌为 '+list(conceptDown)+'。':'板块榜单未通过同日校验，不进行热点归因。';
+      const techRead=tech.length?'科技细分中，最强的 '+tech.slice().sort((a,z)=>z.changePercent-a.changePercent).slice(0,3).map(x=>esc(x.name)+' '+pct(x.changePercent)).join('、')+'；最弱的 '+tech.slice().sort((a,z)=>a.changePercent-z.changePercent).slice(0,3).map(x=>esc(x.name)+' '+pct(x.changePercent)).join('、')+'。这用于识别科技内部是全面风险偏好还是少数硬件方向抱团。':'科技细分矩阵不足，不把单只科技权重表现外推为整个科技板块。';
+      const support=idx.map(x=>valid(x.low)?esc(x.name)+' '+num(x.low).toFixed(2):'').filter(Boolean).join('；'),resistance=idx.map(x=>valid(x.high)?esc(x.name)+' '+num(x.high).toFixed(2):'').filter(Boolean).join('；');
+      const confidence=[idx.length>=4,breadthOk,turnOk,leaders.length>=3,sectors.dateMatched!==false].filter(Boolean).length,grade=confidence===5?'高':confidence>=3?'中':'低';
+      return '<article class="reviewArticle marketAnalystReport" data-testid="professional-market-analysis">'
+        +'<h2>'+esc(date)+' A股市场盘后深度复盘：从指数表象还原真实市场结构</h2>'
+        +'<p><b>核心事实：</b>'+indexFacts+'。'+(breadthOk?'全市场上涨 '+b.advancingCount+' 家、下跌 '+b.decliningCount+' 家、平盘 '+(b.flatCount||0)+' 家，中位涨跌幅 '+pct(median)+'。':'市场宽度暂不可用。')+liquidity+'</p>'
+        +'<blockquote><strong>分析师结论：</strong>'+style+breadthTone+liquidityRead+' 本结论置信度为“'+grade+'”，依据是五项硬指标中 '+confidence+' 项可用：主要指数、全市场宽度、成交历史、板块扩散和日期一致性。</blockquote>'
+        +'<h2>一、指数结构：上涨或下跌究竟由谁贡献</h2><p>'+(strong&&weak?'当日表现最强的是 '+esc(strong.name)+'（'+pct(strong.changePercent)+'），最弱的是 '+esc(weak.name)+'（'+pct(weak.changePercent)+'），差距 '+disp.toFixed(2)+' 个百分点。':'可比较指数不足。')+style+' 若上证或沪深300明显强于中证1000、创业板，通常意味着权重防御或大盘风格占优；反之则说明风险偏好向高弹性资产扩散。这里仅依据同日收益差判断结构，不把风格差异直接解释为某类账户买卖。</p>'
+        +'<h2>二、市场宽度：指数方向是否得到多数股票确认</h2><p>'+(breadthOk?'上涨占比 '+up.toFixed(1)+'%，下跌占比 '+down.toFixed(1)+'%，中位数 '+pct(median)+'。'+tails:'当前样本 '+total+' 家，未达到可靠全市场口径。')+breadthTone+' 指数与中位数背离时，应优先相信宽度对普通持仓体验的描述；指数抗跌但中位数深跌，通常只是权重稳定而非全市场企稳。</p>'
+        +'<h2>三、尾部风险与赚钱效应：涨跌停之外还要看5%分布</h2><p>'+tails+(breadthOk?' 跌停与跌超5%家数衡量亏钱效应是否向尾部扩散；涨停与涨超5%家数衡量高弹性机会是否具备足够供给。只有上涨家数、正中位数和强势尾部同时改善，才能把指数反弹定义为可交易的全面修复。':' 因数据不足，不用局部涨停榜代替全市场情绪。')+'</p>'
+        +'<h2>四、流动性周期：环比变化与绝对分位必须同时判断</h2><p>'+liquidity+liquidityRead+' 成交额代表交易强度，不等于净流入，更不等于机构资金方向；没有账户级数据时，不使用“主力进场”或“机构出逃”作为事实。</p>'
+        +'<h2>五、行业与概念扩散：辨别主线、抱团与补跌</h2><p>'+diffusion+'</p><p>'+techRead+' 真正有质量的主线应同时具备：板块指数强、成分中位数为正、龙头不过度孤立、回落时承接稳定。若只有一两只权重上涨而板块中位数偏弱，更接近抱团而非产业链共振。</p>'
+        +'<h2>六、近几个交易日：当前能确认什么、不能确认什么</h2><p>'+ (turnOk?'成交序列显示当前金额相对前日 '+pct(chg)+'，相对5日均额 '+(valid(avg5)&&avg5?pct((num(t.totalTurnover)-avg5)/avg5*100):'未返回')+'，相对20日均额 '+(valid(avg20)&&avg20?pct((num(t.totalTurnover)-avg20)/avg20*100):'未返回')+'。这能判断流动性处于扩张、收缩还是均值附近。':'成交历史不足。')+' 当前数据结构尚未提供所有指数连续3日、5日和20日的同口径收盘序列，因此不虚构“连续反弹”“几连阴”或均线结论；这些判断必须等历史指数序列接入后再写入。</p>'
+        +'<h2>七、盘中路径：仅凭日线可以读到的交易信息</h2><p>主要指数当日低点是下一交易日的第一风险确认线：'+(support||'低点未返回')+'。当日高点是修复需要重新收回的第一压力：'+(resistance||'高点未返回')+'。本页未接入经过日期校验的全套指数分钟路径，因此不编写“上午跳水”“午后回流”等具体时段叙事；日内归因必须有分钟数据支持。</p>'
+        +'<h2>八、事件与政策：建立因果关系必须满足三项证据</h2><p>事件只有同时满足“公开来源可追溯、发布时间早于价格反应、受影响资产表现与传导逻辑一致”，才可进入正式归因。当前报告没有将未经核验的新闻标题写成下跌或上涨原因。近期重要事件若接口未返回，将明确列为数据缺口；宏观政策、海外冲突、监管消息或产业催化不能仅凭时间接近就被认定为市场驱动。</p>'
+        +'<h2>九、所选个股相对市场：区分系统性影响与公司自身因素</h2><p>'+esc(stock.name||'所选个股')+'当日 '+pct(stockMove)+(valid(relative)?'，相对中证1000 '+(relative>=0?'强':'弱')+' '+Math.abs(relative).toFixed(2)+' 个百分点。':'；中证1000数据不足，未计算相对收益。')+' 相对收益只能说明表现差异，不能单独证明消息、资金身份或基本面变化。大盘弱而个股更弱，意味着系统性因素不足以解释全部跌幅；大盘弱而个股抗跌，则说明存在独立相对强度。</p>'
+        +'<h2>十、下一交易日三种可证伪情景</h2><div class="marketScenarioGrid"><article class="marketScenario up"><b>全面修复</b><p>主要指数收回当日高点附近，上涨占比和市场中位数同步转强，跌超5%及跌停家数收缩；成交温和扩张且行业强度由龙头向成分股扩散。</p></article><article class="marketScenario base"><b>权重稳定、结构分化</b><p>上证或沪深300企稳，但中证1000、创业板和市场中位数没有同步改善；成交保持均值附近，机会仍集中在少数行业，不能定义为全市场转强。</p></article><article class="marketScenario down"><b>风险继续扩散</b><p>主要指数跌破当日低点，下跌占比、中位数和跌超5%家数继续恶化；若成交同步放大，说明卖压从存量缩量调整升级为主动释放。</p></article></div>'
+        +'<h2>十一、执行清单：开盘后按证据顺序验证</h2><p><b>第一步看价格：</b>指数是否守住当日低点、能否收回高点。<b>第二步看宽度：</b>上涨占比和中位数是否与指数同向。<b>第三步看流动性：</b>成交扩张发生在上涨还是下跌方向。<b>第四步看扩散：</b>强势是否从权重和龙头传导到行业多数成分。四项至少三项同向，趋势判断才升级。</p>'
+        +'<h2>十二、数据质量、反证条件与结论边界</h2><p>报告交易日为 '+esc(date)+'。指数、宽度、成交和板块必须日期匹配；缺失字段保留“未返回”，不填0。当前结论的反证条件是：指数方向与宽度背离消失、成交方向改变、行业扩散显著切换。报告不预测精确点位，不将成交额等同资金净流向，不使用未来行情解释已经结束的交易日。</p>'
+        +'</article>';
+    }
     renderClosingReviewReport=function(report){
       renderClosingReviewReportBeforeMarketPlacement(report);
       const brief=document.getElementById('closingReviewBrief');
@@ -2123,8 +2154,7 @@ function renderMetrics(q,pct,amp,pos){renderQuoteFacts(q);const pctTone=pct>0?'r
       const marketModule=body?.querySelector('.reviewModule');
       if(!target||!marketModule)return;
       target.dataset.status=report.market?.status||'partial';
-      const isVerifiedJuly24=report.requestedDate==='2026-07-24';
-      target.innerHTML=isVerifiedJuly24?buildProfessionalMarketAnalysis(report):'<article class="marketAnalystReport"><h2>'+esc(report.requestedDate||'当日')+' A股市场数据复盘</h2><blockquote>当前日期没有经过事件时间线核验的专项长文；以下仅保留同日指数、宽度、成交额及来源状态，不复用7月24日模板。</blockquote>'+marketModule.innerHTML+'</article>';
+      target.innerHTML=buildInstitutionalMarketAnalysis(report);
       collapseAnalysisArticle(target,'.marketAnalystReport','近期演变','展开极其详细的大盘分析','近期演变 · 市场宽度 · 事件 · 盘中时间线 · 风格 · 情绪 · 情景');
       marketModule.remove();
     };
