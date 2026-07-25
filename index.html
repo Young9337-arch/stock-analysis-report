@@ -5,8 +5,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light">
-  <meta http-equiv="refresh" content="0; url=./daily-market-report.html">
   <link rel="canonical" href="./daily-market-report.html">
+  <link rel="preload" href="./daily-market-report.html" as="document">
   <title>每日行情分析</title>
   <style>
     :root{color-scheme:light}
@@ -35,13 +35,15 @@
     a{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 18px;border-radius:999px;background:#b8914b;color:white;text-decoration:none;font-weight:900}
   </style>
   <script>
-    window.location.replace('./daily-market-report.html' + window.location.search + window.location.hash);
+    if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
+    const reportUrl='./daily-market-report.html'+window.location.search+window.location.hash;
+    window.location.replace(reportUrl);
   </script>
 </head>
 <body>
   <main class="box">
     <h1>每日行情分析</h1>
-    <p>正在打开行情分析页面。如果没有自动跳转，请点击下面按钮。分享时请使用完整项目地址，而不是 GitHub 根域名。</p>
+    <p>正在进入行情报告。若当前网络暂时无法连接，可稍后重试；成功打开一次后，浏览器会保留页面离线缓存。</p>
     <a href="./daily-market-report.html">打开行情分析</a>
   </main>
 </body>
