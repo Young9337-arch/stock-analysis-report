@@ -435,7 +435,7 @@ html,body{max-width:100%;overflow-x:hidden}.reportTable{display:block;width:100%
         </div>
       </div>
     </div>
-    <div class="cnLoadStatus" id="cnLoadStatus" role="status" aria-live="polite"><span><b>页面已打开</b> · 正在连接国内行情源，慢网络下最多等待约5秒；扩展模块失败不会影响核心页面。</span><button type="button" onclick="loadAll()">重新连接行情</button></div>
+    <div class="cnLoadStatus" id="cnLoadStatus" role="status" aria-live="polite"><span><b>页面已打开</b> · 正在连接国内行情源，慢网络下最多等待约5秒；扩展模块失败不会影响核心页面。</span><button type="button" onclick="loadAll().catch(()=>{})">重新连接行情</button></div>
 
     <section class="hero">
       <div class="quote">
@@ -637,6 +637,7 @@ html,body{max-width:100%;overflow-x:hidden}.reportTable{display:block;width:100%
     const CN_NETWORK={scriptTimeout:4500,fetchTimeout:5000,optionalTimeout:6500};
     function fetchWithTimeout(url,options={},timeout=CN_NETWORK.fetchTimeout){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);return window.fetch(url,{...options,signal:controller.signal,cache:'no-store'}).finally(()=>clearTimeout(timer))}
     const fetch=(url,options={})=>fetchWithTimeout(url,options,CN_NETWORK.optionalTimeout);
+    window.addEventListener('unhandledrejection',event=>{const message=String(event.reason?.message||event.reason||'');if(/^(script (?:load failed|timeout)|jsonp timeout|AbortError)/i.test(message)){event.preventDefault();if(window.__CLOSING_REVIEW_DIAGNOSTICS__)window.__CLOSING_REVIEW_DIAGNOSTICS__.push({event:'optional-network-rejection',message,at:new Date().toISOString()})}});
     fetchWithTimeout("https://api.counterapi.dev/v1/young9337-stock-analysis/visits/up",{},2500)
       .then(response => response.ok ? response.json() : Promise.reject(new Error("COUNTER_HTTP_" + response.status)))
       .then(data => { const count = document.getElementById("site-visit-count"); if (count && Number.isFinite(data.count)) count.textContent = data.count.toLocaleString("zh-CN"); })
@@ -2214,7 +2215,7 @@ function renderMetrics(q,pct,amp,pos){renderQuoteFacts(q);const pctTone=pct>0?'r
     async function initializeFixtureMode(fixture){if(!fixture||!fixture.stock)throw Error('invalid-fixture-input');lastQuote=fixture.stock;lastMinutes=ensureArray(fixture.minutes);marketContextData=fixture.marketContext||{};sectorContextData=fixture.sectorContext||{};overseasContextData=fixture.overseasContext||{};transitionClosingReview('loading-base');return renderClosingReview()}
     const loadAllNetworkOnly=loadAll;
     loadAll=async function(){const status=document.getElementById('cnLoadStatus'),cached=readCoreCache(stockSymbol);if(status)status.querySelector('span').innerHTML='<b>页面已打开</b> · 正在更新核心行情，扩展数据将在后台分批加载。';if(cached?.quote&&!lastQuote){lastQuote=cached.quote;lastMinutes=[];safeRun(renderAll);const u=document.getElementById('updated');if(u)u.textContent='缓存行情 · '+new Date(cached.savedAt).toLocaleString('zh-CN',{hour12:false});if(status)status.querySelector('span').innerHTML='<b>已显示本地缓存</b> · 正在后台更新实时行情。'}return loadAllNetworkOnly().finally(()=>{if(status)status.querySelector('span').innerHTML=lastQuote?'<b>核心行情已就绪</b> · 资金、新闻、海外等扩展模块按网络情况独立更新。':'<b>核心行情暂时未连接</b> · 页面功能可用，请点击重新连接；也可稍后再试。';})};
-    async function initializeProductionMode(){closingReviewInitialization.productionLoadAllCount++;return loadAll().finally(()=>{closingReviewDiagnostic('closing-review:load-all-end',{hasQuote:!!lastQuote,minuteCount:ensureArray(lastMinutes).length});if(lastQuote)renderClosingReview();else transitionClosingReview('failed',{reason:'base-stock-data-unavailable'})})}
+    async function initializeProductionMode(){closingReviewInitialization.productionLoadAllCount++;return loadAll().catch(error=>{closingReviewDiagnostic('closing-review:load-all-error',{error:String(error)});return false}).finally(()=>{closingReviewDiagnostic('closing-review:load-all-end',{hasQuote:!!lastQuote,minuteCount:ensureArray(lastMinutes).length});if(lastQuote)renderClosingReview();else transitionClosingReview('failed',{reason:'base-stock-data-unavailable'})})}
     let lastAuto='';safeRun(polishToolbar);safeRun(bindInteractions);safeRun(renderRealOverseasWidgets);closingReviewDiagnostic('closing-review:script-start');if(closingReviewRuntimeMode==='fixture'){transitionClosingReview('awaiting-fixture')}else{setInterval(()=>{const d=new Date(),m=d.getHours()*60+d.getMinutes(),key=d.toDateString()+m;if((m===690||m===930)&&lastAuto!==key){lastAuto=key;initializeClosingReviewApp({mode:'production',trigger:'scheduled'})}document.getElementById('phase').textContent=phase()[0]},30000);initializeClosingReviewApp({mode:'production',trigger:'automatic'})};
   </script>
 </body>
