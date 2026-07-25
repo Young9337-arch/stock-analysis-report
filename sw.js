@@ -1,5 +1,5 @@
-const CACHE='stock-report-shell-v1';
-const SHELL=['./','./index.html','./daily-market-report.html','./vendor/echarts.min.js','./support-alipay-qr.jpg'];
+const CACHE='stock-report-shell-v2';
+const SHELL=['./','./index.html','./daily-market-report.html','./vendor/echarts.min.js','./vendor/company-inspur-representative.jpg','./support-alipay-qr.jpg'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',event=>{
