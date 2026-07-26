@@ -1,4 +1,4 @@
-const CACHE='stock-report-shell-v3';
+const CACHE='stock-report-shell-v4';
 const SHELL=['./','./index.html','./daily-market-report.html','./vendor/echarts.min.js','./vendor/company-inspur-representative.jpg','./support-alipay-qr.jpg'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>Promise.allSettled(SHELL.map(url=>cache.add(url)))).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));

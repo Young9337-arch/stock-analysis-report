@@ -642,7 +642,9 @@ html,body{max-width:100%;overflow-x:hidden}.reportTable{display:block;width:100%
       .then(response => response.ok ? response.json() : Promise.reject(new Error("COUNTER_HTTP_" + response.status)))
       .then(data => { const count = document.getElementById("site-visit-count"); if (count && Number.isFinite(data.count)) count.textContent = data.count.toLocaleString("zh-CN"); })
       .catch(() => { const count = document.getElementById("site-visit-count"); if (count) count.textContent = "暂不可用"; });
-    let stockCode='603629',stockSymbol='sh603629',lastQuote=null,lastMinutes=[],lastPrevMinutes=[],lastMonthDaily=[],marketMinutes=[],minuteState=null,marketContextData=null,sectorContextData=null,overseasContextData=null;
+    const entryParams=new URLSearchParams(location.search),entrySymbol=entryParams.get('symbol'),entryView=entryParams.get('view');
+    let stockCode=/^(?:sh|sz|bj)\d{6}$/.test(entrySymbol||'')?entrySymbol.slice(2):'603629',stockSymbol=/^(?:sh|sz|bj)\d{6}$/.test(entrySymbol||'')?entrySymbol:'sh603629',lastQuote=null,lastMinutes=[],lastPrevMinutes=[],lastMonthDaily=[],marketMinutes=[],minuteState=null,marketContextData=null,sectorContextData=null,overseasContextData=null;
+    window.addEventListener('load',()=>setTimeout(()=>{const id=entryView==='market'?'marketAnalysisCard':entryView==='overseas'?'globalMarketAnalysis':entryView==='report'?'closingReviewCard':location.hash==='#support'?'supportAuthor':null,el=id&&document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'})},900));
     const CN_CACHE_PREFIX='stock-report-cn-v1:';
     function readCoreCache(symbol){try{const x=JSON.parse(localStorage.getItem(CN_CACHE_PREFIX+symbol)||'null');return x&&x.savedAt&&Date.now()-x.savedAt<24*3600000&&x.quote?x:null}catch(e){return null}}
     function writeCoreCache(symbol,payload){try{localStorage.setItem(CN_CACHE_PREFIX+symbol,JSON.stringify({savedAt:Date.now(),...payload}))}catch(e){}}
