@@ -586,13 +586,14 @@ img,svg,canvas,iframe{max-width:100%}
 .foreignEyebrow,.foreignReportCover>span{display:block;margin-bottom:10px;color:#356ff6;font-size:11px;font-weight:800;letter-spacing:.14em}
 .foreignLeadText{max-width:1100px;color:#526173;line-height:1.9}
 .foreignResearchCards,.foreignThesisGrid,.foreignScenarioGrid,.foreignKpiStrip{display:grid;gap:14px;margin:18px 0}
-.foreignResearchCards{grid-template-columns:repeat(3,minmax(0,1fr))}
+.foreignResearchCards{grid-template-columns:repeat(auto-fit,minmax(min(290px,100%),1fr))}
 .foreignThesisGrid,.foreignScenarioGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
 .foreignKpiStrip{grid-template-columns:repeat(5,minmax(0,1fr))}
 .foreignResearchCards article,.foreignThesisGrid article,.foreignScenarioGrid article,.foreignKpiStrip>div{padding:17px 18px;border:1px solid #dfe6ef;border-radius:16px;background:#fff;box-shadow:0 8px 24px rgba(22,42,73,.035)}
 .foreignResearchCards.positive article{background:linear-gradient(145deg,#fff,#f2fbf7);border-color:#ccebdc}
 .foreignResearchCards.risk article{background:linear-gradient(145deg,#fff,#fff7f3);border-color:#f0ddd1}
 .foreignResearchCards h3{grid-column:1/-1;margin:6px 0 0;font-size:17px}
+.foreignResearchCards article:only-of-type{grid-column:1/-1}.foreignResearchCards article:only-of-type b{max-width:1100px;line-height:1.75}.foreignResearchReport .foreignResearchCards{padding:18px;border:1px solid #e4e9f0;border-radius:18px;background:#fafbfc}.foreignResearchReport .foreignResearchCards article{box-shadow:none}.foreignVerifiedFacts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0 28px}.foreignVerifiedFacts article{padding:20px;border:1px solid #dfe5ec;border-radius:16px;background:linear-gradient(150deg,#fff,#f7f9fc)}.foreignVerifiedFacts small{display:block;color:#7b8798;font-size:11px}.foreignVerifiedFacts b{display:block;margin-top:9px;color:#102747;font-size:17px;line-height:1.45}.foreignResearchVerdict{margin:18px 0 28px;padding:22px 24px;border-left:4px solid #111827;border-radius:0 16px 16px 0;background:#f5f6f7;color:#27364b;line-height:1.9}.foreignResearchVerdict strong{color:#0d1b2d}
 .foreignResearchCards b,.foreignKpiStrip b{display:block;margin:5px 0;color:#102747;font-size:17px}
 .foreignResearchCards p,.foreignThesisGrid p,.foreignScenarioGrid p{margin:7px 0 0;color:#607089;line-height:1.75}
 .foreignResearchReport{max-width:1280px;margin:0 auto;color:#243b5a;line-height:1.9}
@@ -609,8 +610,8 @@ img,svg,canvas,iframe{max-width:100%}
 .foreign-security-view #analysis.analysis{display:block!important;padding:30px 34px!important}.foreign-security-view #analysis>h2{margin:0 0 24px;font-size:26px;letter-spacing:-.035em}.foreign-security-view #analysis .foreignKpiStrip{margin:0 0 22px;padding:6px;border:1px solid #e5e9ef;border-radius:18px;background:#f7f8fa}.foreign-security-view #analysis .foreignKpiStrip>div{min-height:90px;padding:16px 18px;border:0;border-right:1px solid #e3e7ed;border-radius:12px;box-shadow:none;background:transparent}.foreign-security-view #analysis .foreignKpiStrip>div:last-child{border-right:0}.foreign-security-view #analysis .foreignTechnicalNarrative{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.foreign-security-view #analysis .foreignTechnicalNarrative article{padding:22px;border:1px solid #e3e8ef;border-radius:18px;background:#fff;box-shadow:0 10px 28px rgba(23,42,70,.045)}.foreign-security-view #analysis .foreignTechnicalNarrative h3{margin:0 0 12px;font-size:17px}.foreign-security-view #analysis .foreignTechnicalNarrative p{margin:0;color:#526173;font-size:14px;line-height:1.85}.foreign-security-view #analysis .foreignEvidenceBar{margin-top:16px;padding:14px 17px;border:0;border-radius:14px;background:#f4f6f8;color:#667085;font-size:12px;line-height:1.7}
 .foreignScenarioGrid article:first-child{border-top:3px solid #1f9d70}.foreignScenarioGrid article:nth-child(2){border-top:3px solid #c8942e}.foreignScenarioGrid article:last-child{border-top:3px solid #df5b61}
 @media(max-width:900px){.foreignResearchCards,.foreignThesisGrid,.foreignScenarioGrid{grid-template-columns:1fr 1fr}.foreignKpiStrip{grid-template-columns:repeat(2,minmax(0,1fr))}.foreignCompanyLead,.foreignReportCover{padding:22px}}
-@media(max-width:900px){.foreign-security-view #analysis .foreignTechnicalNarrative{grid-template-columns:1fr}.foreign-security-view #analysis .foreignKpiStrip{grid-template-columns:repeat(2,minmax(0,1fr))}.foreign-security-view #analysis .foreignKpiStrip>div{border-right:0}}
-@media(max-width:600px){.foreignResearchCards,.foreignThesisGrid,.foreignScenarioGrid,.foreignKpiStrip{grid-template-columns:1fr}.foreignReportCover h2{font-size:24px}.foreignResearchReport>h2{font-size:21px}.foreignCompanyLead,.foreignReportCover{padding:18px;border-radius:16px}.foreign-security-view #analysis.analysis{padding:22px 18px!important}.foreign-security-view #analysis>h2{font-size:22px}.foreign-security-view #analysis .foreignKpiStrip{grid-template-columns:1fr 1fr}.foreign-security-view #analysis .foreignKpiStrip>div{min-height:78px;padding:13px}}
+@media(max-width:900px){.foreign-security-view #analysis .foreignTechnicalNarrative{grid-template-columns:1fr}.foreign-security-view #analysis .foreignKpiStrip{grid-template-columns:repeat(2,minmax(0,1fr))}.foreign-security-view #analysis .foreignKpiStrip>div{border-right:0}.foreignVerifiedFacts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.foreignResearchCards,.foreignThesisGrid,.foreignScenarioGrid,.foreignKpiStrip,.foreignVerifiedFacts{grid-template-columns:1fr}.foreignReportCover h2{font-size:24px}.foreignResearchReport>h2{font-size:21px}.foreignCompanyLead,.foreignReportCover{padding:18px;border-radius:16px}.foreign-security-view #analysis.analysis{padding:22px 18px!important}.foreign-security-view #analysis>h2{font-size:22px}.foreign-security-view #analysis .foreignKpiStrip{grid-template-columns:1fr 1fr}.foreign-security-view #analysis .foreignKpiStrip>div{min-height:78px;padding:13px}}
 </style>
 </head>
 <body>
@@ -2076,6 +2077,57 @@ function renderMetrics(q,pct,amp,pos){renderQuoteFacts(q);const pctTone=pct>0?'r
       };
       return map[String(ticker||'').toUpperCase()]||[];
     }
+    function foreignVerifiedCompanyFacts(ticker){
+      const key=String(ticker||'').toUpperCase();
+      const map={
+        NVDA:{
+          asOf:'FY2027 第一财季 · 2026-05-20',
+          source:'NVIDIA 投资者关系',
+          facts:[
+            ['季度营收','$81.6B','同比增长 85%'],
+            ['数据中心收入','$75.2B','同比增长 92%'],
+            ['收入结构','约 92%','数据中心占季度营收'],
+            ['资本回报','$80B + $0.25','新增回购授权 + 季度股息']
+          ],
+          verdict:'当前研究核心不是笼统的“AI景气”，而是云厂商资本开支能否持续转化为 Blackwell 系统、网络与 CUDA 生态收入。最新季度数据证明需求和交付仍强，但数据中心收入高度集中，也使客户资本开支、出口限制、先进封装与 HBM 供给变化更快传导至盈利预期。',
+          questions:[
+            'Blackwell 放量能否在高增速下维持产品组合与毛利率，而不是只增加低毛利整机收入',
+            '大型云客户的 AI 资本开支能否被其自身 AI 收入和利用率证明，而非持续依赖超前建设',
+            '推理需求、网络产品与企业 AI 能否扩大收入来源，降低单一训练周期和少数客户的集中风险',
+            '出口限制、CoWoS/HBM 供给与新品切换是否改变可交付收入、库存和现金流节奏'
+          ]
+        },
+        '000660':{
+          asOf:'最近一期官方 IR 披露',
+          source:'SK hynix 官方 IR',
+          facts:[
+            ['核心产品','HBM / DRAM','AI服务器与通用内存'],
+            ['第二曲线','企业级 SSD','数据中心存储需求'],
+            ['关键供给','先进封装','良率与产能决定交付'],
+            ['核心周期','存储价格','库存与供给纪律共同驱动']
+          ],
+          verdict:'SK hynix 的定价不能只看存储景气标签。核心矛盾是 HBM 高价值产品放量能否抵消传统 DRAM/NAND 周期波动，并通过客户认证、先进封装良率和资本开支纪律转化为可持续自由现金流。',
+          questions:[
+            'HBM 代际切换、客户认证与先进封装产能能否按计划兑现',
+            '传统 DRAM/NAND 合约价格和库存变化是否支持周期延续',
+            '资本开支增长是否快于真实需求，形成下一轮供给压力',
+            '韩元、出口限制与客户集中度如何影响利润和估值折价'
+          ]
+        }
+      };
+      return map[key]||{
+        asOf:'最近一期公司官方披露',
+        source:'公司投资者关系与交易所公告',
+        facts:[
+          ['业务结构','待官方财报核验','不以行业标签替代'],
+          ['盈利质量','利润率与现金流','必须同步验证'],
+          ['供给约束','产能与交付','决定收入兑现速度'],
+          ['估值条件','盈利与折现率','共同决定合理区间']
+        ],
+        verdict:'当前结论只建立在已核验行情和公司业务框架之上。下一步必须用最新财报、管理层指引、现金流和客户/供应链证据更新盈利假设，不能把主题热度直接写成公司增长。',
+        questions:['最新财报中哪项业务贡献了增量收入与利润','增长是否伴随毛利率和自由现金流改善','客户、供应链或监管事件是否改变未来指引','当前估值是否已经提前反映乐观情景']
+      };
+    }
     /* Foreign research iteration 2/5 — full company profile, no generic three-card outline. */
     function foreignResearchCards(title,items,tone=''){
       const rows=Array.isArray(items)?items:(items===undefined||items===null||items===''?[]:[items]);
@@ -2833,7 +2885,7 @@ analystModules.push('<h2>二十二、行业扩散与主线质量：辨别普涨�
     }
     function foreignMetric(value,suffix='',digits=2){return Number.isFinite(value)?value.toLocaleString('zh-CN',{minimumFractionDigits:digits,maximumFractionDigits:digits})+suffix:'待验证'}
     renderForeignResearchSuite=function(q){
-      const p=foreignCompanyIdentity(stockSymbol,q?.name||''),r=foreignResearchBlueprint(p.ticker),official=foreignOfficialSources(p.ticker),f=foreignTechnicalFacts(q,lastMonthDaily),pct=safePct(q.price,q.prev),amp=calculateAmplitude(q.high,q.low,q.prev),range=Math.max(.0001,q.high-q.low),dayPos=clip((q.price-q.low)/range*100),currency=q.currency||'USD',fmt=v=>Number.isFinite(+v)?Number(v).toLocaleString('zh-CN',{maximumFractionDigits:4}):'--';
+      const p=foreignCompanyIdentity(stockSymbol,q?.name||''),r=foreignResearchBlueprint(p.ticker),official=foreignOfficialSources(p.ticker),verified=foreignVerifiedCompanyFacts(p.ticker),f=foreignTechnicalFacts(q,lastMonthDaily),pct=safePct(q.price,q.prev),amp=calculateAmplitude(q.high,q.low,q.prev),range=Math.max(.0001,q.high-q.low),dayPos=clip((q.price-q.low)/range*100),currency=q.currency||'USD',fmt=v=>Number.isFinite(+v)?Number(v).toLocaleString('zh-CN',{maximumFractionDigits:4}):'--';
       const trend=Number.isFinite(f.ma20)&&Number.isFinite(f.ma60)?(f.price>f.ma20&&f.ma20>=f.ma60?'多头排列':f.price<f.ma20&&f.ma20<=f.ma60?'空头排列':'震荡过渡'):'趋势待验证',direction=pct>1?'偏强':pct<-1?'偏弱':'震荡',support=Number.isFinite(f.low20)?f.low20:q.low,pressure=Number.isFinite(f.high20)?f.high20:q.high;
       const score=Math.round(clip(50+(Number.isFinite(f.ret20)?f.ret20*.7:0)+(dayPos-50)*.12+(Number.isFinite(f.volRatio)?(f.volRatio-1)*8:0))),evidence=f.dataCount>=20?'高':f.dataCount>=10?'中':'低';
       document.getElementById('score').textContent=score;document.getElementById('grade').textContent=scoreGrade(score);
@@ -2849,8 +2901,12 @@ analystModules.push('<h2>二十二、行业扩散与主线质量：辨别普涨�
       const stats=document.getElementById('chartStats');if(stats)stats.innerHTML='<div><small>现价</small><b>'+fmt(q.price)+'</b></div><div><small>MA20</small><b>'+fmt(f.ma20)+'</b></div><div><small>ATR(14)</small><b>'+foreignMetric(f.atrPct,'%')+'</b></div><div><small>60日位置</small><b>'+foreignMetric(f.position60,'% ',0)+'</b></div>';
       const driverRows=r.drivers.map((x,i)=>'<tr><td>'+esc(x)+'</td><td>'+esc(r.metrics[i%r.metrics.length])+'</td><td>盈利预期上修并由价格放量突破确认</td><td>'+esc(r.risks[i%r.risks.length])+'</td></tr>').join(''),officialLinks=official.length?'<div class="foreignSourceLinks">'+official.map(x=>'<a href="'+esc(x[1])+'" target="_blank" rel="noopener noreferrer">'+esc(x[0])+' ↗</a>').join('')+'</div>':'<p class="boundary">公司官方财报入口待核验。</p>';
       const report='<div class="foreignResearchReport"><div class="foreignReportCover"><span>GLOBAL EQUITY · VERIFIED RESEARCH</span><h2>'+esc(p.company)+'（'+esc(p.ticker)+'）海外证券深度报告</h2><p><b>分析师结论：</b>'+trend+'，短线'+direction+'。研究核心不是复述涨跌，而是验证“业务驱动是否转化为盈利预期、盈利预期是否得到量价确认”。</p></div><h2>一、可核验行情快照</h2>'+technical+'<h2>二、主营业务与价值创造</h2>'+foreignResearchCards('核心产品与收入来源',r.products)+foreignResearchCards('商业模式与利润形成',r.model)+'<h2>三、产业链、竞争壁垒与失效条件</h2>'+foreignResearchCards('供应链与产能约束',r.supply)+foreignResearchCards('竞争优势',r.moat,'positive')+foreignResearchCards('竞争与替代风险',r.competition,'risk')+'<h2>四、重大事件如何传导到股价</h2><div class="foreignTableWrap"><table class="foreignResearchTable"><thead><tr><th>事件变量</th><th>应验证的经营指标</th><th>价格确认</th><th>证伪条件</th></tr></thead><tbody>'+driverRows+'</tbody></table></div><h2>五、增长驱动与风险清单</h2>'+foreignResearchCards('增长驱动',r.drivers,'positive')+foreignResearchCards('核心风险',r.risks,'risk')+'<h2>六、财务质量与跟踪指标</h2>'+foreignResearchCards('每期必须核验',r.metrics)+'<h2>七、估值框架与三情景</h2><p>'+esc(r.valuation)+'</p><div class="foreignScenarioGrid"><article><b>乐观情景</b><p>驱动兑现、盈利预期上修，价格放量突破 '+fmt(pressure)+'。</p></article><article><b>基准情景</b><p>经营改善与估值消化并行，价格在 '+fmt(support)+'—'+fmt(pressure)+' 区间震荡。</p></article><article><b>压力情景</b><p>风险事件落地、指引下修并放量跌破 '+fmt(support)+'，转入防守。</p></article></div><h2>八、下一交易日观察清单</h2><ol><li>价格能否守住MA20与20日支撑。</li><li>突破压力时量比是否高于1并延续。</li><li>公司、客户、供应链或监管事件是否改变盈利预期。</li><li>行业指数、汇率和利率是否形成同向或反向验证。</li></ol><p class="boundary"><b>数据审计：</b>本报告使用 '+f.dataCount+' 条已加载海外日线与当前报价。缺少的财务数值、Level 2、分析师一致预期不补造；结论与原始数据范围同步标注。</p></div>';
+      const verifiedFacts='<div class="foreignVerifiedFacts">'+verified.facts.map(x=>'<article><small>'+esc(x[0])+'</small><b>'+esc(x[1])+'</b><span>'+esc(x[2])+'</span></article>').join('')+'</div>';
+      const researchVerdict='<section class="foreignResearchVerdict"><small>ANSWER FIRST · '+esc(verified.asOf)+'</small><h2>当前最重要的研究结论</h2><p>'+esc(verified.verdict)+'</p><footer>事实来源：'+esc(verified.source)+'；经营事实与实时价格分层呈现，不把不同日期的数据强行归因。</footer></section>';
+      const researchQuestions=foreignResearchCards('决定下一轮盈利预期的四个问题',verified.questions,'researchQuestions');
+      const enrichedReport=report.replace('<h2>一、可核验行情快照</h2>',researchVerdict+'<h2>最新官方经营事实</h2>'+verifiedFacts+researchQuestions+'<h2>一、可核验行情快照</h2>');
       document.getElementById('reportBrief').innerHTML='<b>'+esc(p.company)+'：</b>'+trend+'；近20日 '+foreignMetric(f.ret20,'%')+'，ATR '+foreignMetric(f.atrPct,'%')+'，量比 '+foreignMetric(f.volRatio,'倍')+'。关键观察 '+fmt(support)+'—'+fmt(pressure)+' '+currency+'，详细研究已直接展开。';
-      document.getElementById('fullReportBody').innerHTML=report;document.getElementById('fullReportDetails').open=true;
+      document.getElementById('fullReportBody').innerHTML=enrichedReport;document.getElementById('fullReportDetails').open=true;
       const gap=Number.isFinite(+q.open)&&Number.isFinite(+q.prev)?safePct(+q.open,+q.prev):NaN,closeFromOpen=Number.isFinite(+q.price)&&Number.isFinite(+q.open)?safePct(+q.price,+q.open):NaN;
       const closingReport='<div class="foreignResearchReport foreignClosingReview"><div class="foreignReportCover"><span>GLOBAL EQUITY · CLOSING REVIEW</span><h2>'+esc(p.company)+'（'+esc(p.ticker)+'）当日收盘深度复盘</h2><p><b>收盘判断：</b>当日'+direction+'，中期处于'+trend+'。现价 '+fmt(q.price)+' '+currency+'，较前收 '+foreignMetric(pct,'%')+'；但单日方向只有在20日趋势、成交量和公司事件共同确认后，才具备延续意义。</p></div><h2>一、当日价格路径：开盘、极值与收盘质量</h2><div class="foreignKpiStrip"><div><small>开盘缺口</small><b>'+foreignMetric(gap,'%')+'</b></div><div><small>开盘至收盘</small><b>'+foreignMetric(closeFromOpen,'%')+'</b></div><div><small>日内振幅</small><b>'+foreignMetric(amp,'%')+'</b></div><div><small>收盘位置</small><b>'+foreignMetric(dayPos,'% ',0)+'</b></div><div><small>成交量/20日均量</small><b>'+foreignMetric(f.volRatio,'倍')+'</b></div></div><p>当日开盘 '+fmt(q.open)+'、最高 '+fmt(q.high)+'、最低 '+fmt(q.low)+'、收盘 '+fmt(q.price)+' '+currency+'。开盘缺口为 '+foreignMetric(gap,'%')+'，开盘后至收盘变化 '+foreignMetric(closeFromOpen,'%')+'，最终收在全天区间的 '+foreignMetric(dayPos,'% ',0)+'位置。收盘越接近高位，说明买方保留的反攻成果越多；越接近低位，则说明尾盘风险偏好仍弱。必须同时结合量比判断，不能只凭K线颜色下结论。</p><h2>二、多周期背景：今天的涨跌处于什么位置</h2><p>近5日、20日和60日收益分别为 '+foreignMetric(f.ret5,'%')+'、'+foreignMetric(f.ret20,'%')+'、'+foreignMetric(f.ret60,'%')+'；MA5 / MA20 / MA60 分别为 '+fmt(f.ma5)+' / '+fmt(f.ma20)+' / '+fmt(f.ma60)+'。当前结构判定为<b>'+trend+'</b>。如果单日反弹发生在MA20下方，它首先属于修复；只有重新站稳MA20并推动均线斜率改善，才可升级为波段转强。</p><h2>三、量价、波动与筹码压力</h2><p>最新成交量为 '+fmt(q.volume)+'，相对20日均量 '+foreignMetric(f.volRatio,'倍')+'；ATR(14)占现价 '+foreignMetric(f.atrPct,'%')+'，60日高点回撤 '+foreignMetric(f.drawdown,'%')+'。放量上涨通常代表增量交易确认，缩量上涨更接近抛压暂时减轻；放量下跌意味着风险重新定价，缩量回落则需观察支撑区是否出现承接。ATR较高时，即使方向判断正确，入场时点和仓位仍可能决定结果。</p><h2>四、关键支撑、压力与结构失效</h2><div class="foreignScenarioGrid"><article><b>支撑防线 '+fmt(support)+'</b><p>20日低点附近。放量跌破后，当前短线修复或延续假设失效。</p></article><article><b>趋势中枢 '+fmt(f.ma20)+'</b><p>MA20是波段多空分界；反复失守说明市场仍在消化估值与事件风险。</p></article><article><b>压力位置 '+fmt(pressure)+'</b><p>20日高点附近。需要收盘站稳并在后续交易日获得量能确认。</p></article></div><h2>五、公司基本面如何解释当天价格</h2>'+foreignResearchCards('最可能影响定价的公司变量',r.drivers,'positive')+'<p>当天价格变化不能自动归因为某一条新闻。只有当上述驱动同步改善公司收入、利润率、自由现金流或估值折现率，并且交易量和关键价位给出确认，才能提高因果判断的可信度。</p><h2>六、产业链与竞争交叉验证</h2><p><b>供应链：</b>'+esc(r.supply)+'</p><p><b>竞争格局：</b>'+esc(r.competition)+'</p><p>复盘时需要辨别上涨究竟来自公司独立信息、行业共同催化，还是市场风险偏好普遍回升。若同业与产业链同步走强，行业贝塔解释力更高；若公司显著跑赢同业且伴随专属事件，个股阿尔法的可信度更高。</p><h2>七、事件分析：从新闻到盈利再到价格</h2><div class="foreignTableWrap"><table class="foreignResearchTable"><thead><tr><th>事件</th><th>首先核验</th><th>正向确认</th><th>风险/证伪</th></tr></thead><tbody>'+driverRows+'</tbody></table></div><h2>八、下一交易日三种情景</h2><div class="foreignScenarioGrid"><article><b>强势延续</b><p>守住MA20，量比改善，并放量突破 '+fmt(pressure)+'；突破后不能快速跌回压力下方。</p></article><article><b>震荡消化</b><p>价格维持在 '+fmt(support)+'—'+fmt(pressure)+' 区间，量能回落，等待事件或行业方向进一步确认。</p></article><article><b>转弱防守</b><p>放量跌破 '+fmt(support)+'，或公司事件导致盈利预期下修；此时优先控制风险。</p></article></div><h2>九、风险清单与反证条件</h2>'+foreignResearchCards('必须持续跟踪的风险',r.risks,'risk')+'<p>如果价格走势与基本面叙事背离，应以可核验数据为准：利好落地但无法突破压力，可能意味着市场已经提前定价；利空出现但迅速收复失地，可能说明抛压释放充分。任何结论都应允许被后续财报、指引和价格行为推翻。</p><h2>十、下次复盘核验清单</h2><ol><li>收盘是否继续位于MA20同一侧，均线结构是否改善。</li><li>突破或跌破关键位时，20日量比是否同步放大。</li><li>公司驱动是否落实到 '+esc(r.metrics.slice(0,3).join('、'))+'。</li><li>同业、行业指数、利率和汇率是否提供交叉验证。</li><li>最新事件是否改变乐观、基准或压力情景的概率。</li></ol><p class="boundary"><b>复盘数据边界：</b>本节使用当前海外报价和 '+f.dataCount+' 条已加载日线计算。没有可核验的盘后交易、Level 2、分析师一致预期或财务明细时明确留空，不使用A股数据或模拟值填补。</p></div>';
       document.getElementById('closingReviewBrief').innerHTML='<b>'+esc(p.company)+'海外收盘结论：</b>当日 '+foreignMetric(pct,'%')+'，收盘位于日内 '+foreignMetric(dayPos,'% ',0)+'位置；近20日 '+foreignMetric(f.ret20,'%')+'，量比 '+foreignMetric(f.volRatio,'倍')+'，ATR '+foreignMetric(f.atrPct,'%')+'。下一交易日重点验证 '+fmt(support)+'—'+fmt(pressure)+' '+currency+'、MA20与公司事件。';
