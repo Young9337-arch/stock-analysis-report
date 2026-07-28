@@ -47,7 +47,41 @@ def quote(symbol):
         "time": fields[30],
         "currency": "KRW" if is_kr else "USD",
         "sourceName": "腾讯证券海外行情",
+        "bid": number(9, True),
+        "bidSize": number(10),
+        "ask": number(19, True),
+        "askSize": number(20),
     }
+
+
+def yahoo_minutes(ticker):
+    url = (
+        "https://query1.finance.yahoo.com/v8/finance/chart/"
+        + urllib.parse.quote(ticker)
+        + "?interval=5m&range=1d"
+    )
+    payload = json.loads(read(url))
+    result = payload["chart"]["result"][0]
+    timestamps = result.get("timestamp") or []
+    quote_rows = ((result.get("indicators") or {}).get("quote") or [{}])[0]
+    closes = quote_rows.get("close") or []
+    volumes = quote_rows.get("volume") or []
+    offset = int((result.get("meta") or {}).get("gmtoffset") or 0)
+    rows = []
+    for index, stamp in enumerate(timestamps):
+        price = closes[index] if index < len(closes) else None
+        if price is None:
+            continue
+        local = datetime.fromtimestamp(stamp + offset, timezone.utc)
+        rows.append(
+            {
+                "date": local.strftime("%Y-%m-%d"),
+                "time": local.strftime("%H%M"),
+                "price": float(price),
+                "volume": float(volumes[index] or 0) if index < len(volumes) else 0,
+            }
+        )
+    return rows
 
 
 def us_daily(ticker):
@@ -129,6 +163,7 @@ def main():
             "usDaily": "新浪财经美国股票日线",
             "krDaily": "Naver Finance 日线",
             "krMinute": "Naver Finance 分时",
+            "foreignMinute": "Yahoo Finance 5分钟行情",
         },
         "securities": {},
     }
@@ -138,7 +173,7 @@ def main():
             payload["securities"][symbol] = {
                 "quote": quote(symbol),
                 "daily": us_daily(ticker),
-                "minutes": [],
+                "minutes": yahoo_minutes(ticker),
             }
         except Exception as error:
             print(f"{symbol}: {error}")
@@ -148,7 +183,7 @@ def main():
             payload["securities"][symbol] = {
                 "quote": quote(symbol),
                 "daily": kr_series(code, "day", 180),
-                "minutes": kr_series(code, "minute", 300),
+                "minutes": yahoo_minutes(code + ".KS") or kr_series(code, "minute", 300),
             }
         except Exception as error:
             print(f"{symbol}: {error}")

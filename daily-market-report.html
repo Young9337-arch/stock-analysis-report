@@ -2777,6 +2777,9 @@ analystModules.push('<h2>二十二、行业扩散与主线质量：辨别普涨�
       if(!q)return q;
       const out={...q},kr=/^kr/i.test(stockSymbol),scale=kr ? .1 : 1;
       ['price','prev','open','high','low','change'].forEach(key=>{if(Number.isFinite(+out[key]))out[key]=+out[key]*scale});
+      const bestBid=Array.isArray(q.bids)?q.bids.find(row=>Number.isFinite(+row?.[0])&&+row[0]>0):null,bestAsk=Array.isArray(q.asks)?q.asks.find(row=>Number.isFinite(+row?.[0])&&+row[0]>0):null;
+      if(bestBid){out.bid=+bestBid[0]*scale;out.bidSize=Number.isFinite(+bestBid[1])?+bestBid[1]:null}
+      if(bestAsk){out.ask=+bestAsk[0]*scale;out.askSize=Number.isFinite(+bestAsk[1])?+bestAsk[1]:null}
       out.currency=kr?'KRW':'USD';
       out.marketLabel=kr?'韩国交易所':'美国证券市场';
       out.sourceName='腾讯证券海外行情';
@@ -2789,7 +2792,7 @@ analystModules.push('<h2>二十二、行业扩散与主线质量：辨别普涨�
         await new Promise((resolve,reject)=>{const script=document.createElement('script');let done=false;const finish=error=>{if(done)return;done=true;clearTimeout(timer);script.remove();error?reject(error):resolve()};script.charset='gbk';script.async=true;script.src=src;script.onload=()=>finish();script.onerror=()=>finish(Error('overseas quote script failed'));const timer=setTimeout(()=>finish(Error('overseas quote timeout')),15000);document.body.appendChild(script)});
         const q=parseQuoteVar(symbol);
         if(!Number.isFinite(q.price)||!Number.isFinite(q.prev)||q.price<=0||q.prev<=0)throw Error('overseas quote payload unavailable');
-        return normalizeForeignQuote(q);
+        return {...snapshot?.quote,...normalizeForeignQuote(q)};
       }catch(error){
         if(snapshot?.quote&&Number.isFinite(+snapshot.quote.price)&&Number.isFinite(+snapshot.quote.prev))return{...snapshot.quote,sourceName:(snapshot.quote.sourceName||'海外行情')+' · 同源校验快照'};
         throw error;
@@ -2837,7 +2840,7 @@ analystModules.push('<h2>二十二、行业扩散与主线质量：辨别普涨�
       const updated=document.getElementById('updated');if(updated)updated.textContent='海外行情未连接';
     }
     function drawForeignVerifiedCharts(q,daily,minutes){
-      const rows=(daily||[]).filter(x=>Number.isFinite(+x.close)&&Number.isFinite(+x.high)&&Number.isFinite(+x.low)),recent=rows.slice(-60),dates=recent.map(x=>x.date),closes=recent.map(x=>+x.close),volumes=recent.map(x=>+x.volume||0),returns=recent.map((x,i)=>i?safePct(x.close,recent[i-1].close):0),color='#356ff6';
+      const rows=(daily||[]).filter(x=>Number.isFinite(+x.close)&&Number.isFinite(+x.high)&&Number.isFinite(+x.low)),recent=rows.slice(-60),intraday=(minutes||[]).filter(x=>Number.isFinite(+x.price)),dates=recent.map(x=>x.date),closes=recent.map(x=>+x.close),volumes=recent.map(x=>+x.volume||0),returns=recent.map((x,i)=>i?safePct(x.close,recent[i-1].close):0),color='#356ff6';
       const set=(id,option)=>{
         const el=document.getElementById(id);
         if(!el||!window.echarts)return;
@@ -2859,14 +2862,20 @@ analystModules.push('<h2>二十二、行业扩散与主线质量：辨别普涨�
       };
       const grid={left:52,right:24,top:38,bottom:42},axis={axisLine:{lineStyle:{color:'#dbe3ee'}},axisLabel:{color:'#718096'},axisTick:{show:false}},split={lineStyle:{color:'#edf2f7'}};
       if(recent.length){
-        set('minuteEChart',{tooltip:{trigger:'axis'},grid,xAxis:{...axis,type:'category',data:dates,boundaryGap:false},yAxis:{...axis,type:'value',scale:true,splitLine:split},series:[{type:'line',data:closes,symbol:'none',smooth:.22,lineStyle:{width:3,color},areaStyle:{color:'rgba(53,111,246,.10)'}}]});
+        if(intraday.length){
+          const minuteTimes=intraday.map(x=>String(x.time||'').replace(/(\d{2})(\d{2})/,'$1:$2')),minutePrices=intraday.map(x=>+x.price),minuteAvg=minutePrices.map((_,i)=>minutePrices.slice(0,i+1).reduce((sum,value)=>sum+value,0)/(i+1));
+          set('minuteEChart',{tooltip:{trigger:'axis'},legend:{top:8,right:18,data:['价格','分时均价']},grid,xAxis:{...axis,type:'category',data:minuteTimes,boundaryGap:false},yAxis:{...axis,type:'value',scale:true,splitLine:split},series:[{name:'价格',type:'line',data:minutePrices,symbol:'none',smooth:.18,lineStyle:{width:3,color},areaStyle:{color:'rgba(53,111,246,.10)'}},{name:'分时均价',type:'line',data:minuteAvg,symbol:'none',smooth:true,lineStyle:{width:2,color:'#c58b27'}}]});
+        }else{
+          const host=document.getElementById('minuteEChart'),existing=host&&echarts.getInstanceByDom(host);if(existing)existing.dispose();
+          if(host)host.innerHTML='<div style="height:100%;display:grid;place-items:center;text-align:center;padding:32px;color:#718096;font-weight:800">当天5分钟行情暂未返回<br><small style="margin-top:8px;font-weight:600">不会用60日走势冒充分时走势</small></div>';
+        }
         set('returnEChart',{tooltip:{trigger:'axis'},grid,xAxis:{...axis,type:'category',data:dates,boundaryGap:false},yAxis:{...axis,type:'value',axisLabel:{formatter:'{value}%'},splitLine:split},series:[{type:'line',data:returns.map(x=>+x.toFixed(2)),symbol:'none',lineStyle:{width:2,color:'#7c3aed'},areaStyle:{color:'rgba(124,58,237,.08)'}}]});
         set('volumeEChart',{tooltip:{trigger:'axis'},grid,xAxis:{...axis,type:'category',data:dates},yAxis:{...axis,type:'value',splitLine:split},series:[{type:'bar',data:volumes,itemStyle:{color:'rgba(53,111,246,.55)'}}]});
         set('rangeChart',{tooltip:{trigger:'axis'},grid,xAxis:{...axis,type:'category',data:dates},yAxis:{...axis,type:'value',scale:true,splitLine:split},series:[{type:'line',name:'最高',data:recent.map(x=>+x.high),symbol:'none',lineStyle:{color:'#e04b55'}},{type:'line',name:'收盘',data:closes,symbol:'none',lineStyle:{color}},{type:'line',name:'最低',data:recent.map(x=>+x.low),symbol:'none',lineStyle:{color:'#16a271'}}]});
         set('radarChart',{radar:{indicator:[{name:'趋势',max:100},{name:'动量',max:100},{name:'位置',max:100},{name:'量能',max:100},{name:'波动控制',max:100}],splitArea:{areaStyle:{color:['#fbfdff','#f5f8fc']}},axisName:{color:'#526173'}},series:[{type:'radar',data:[{value:[clip(50+safePct(closes.at(-1),closes[0])*2),clip(50+returns.at(-1)*8),clip((q.price-Math.min(...recent.map(x=>x.low)))/Math.max(.01,Math.max(...recent.map(x=>x.high))-Math.min(...recent.map(x=>x.low)))*100),clip(50+Math.log10(Math.max(1,volumes.at(-1)))*7),clip(100-calculateAmplitude(q.high,q.low,q.prev)*4)],areaStyle:{color:'rgba(53,111,246,.18)'},lineStyle:{color}}]}]});
         renderMonthKlineTrend(q,recent);
       }
-      const minuteTitle=document.querySelector('#minuteEChart')?.closest('.card')?.querySelector('.head h2');if(minuteTitle)minuteTitle.textContent=(minutes||[]).length?'当天分时走势':'海外近60日价格走势';
+      const minuteTitle=document.querySelector('#minuteEChart')?.closest('.card')?.querySelector('.head h2');if(minuteTitle)minuteTitle.textContent='当天分时走势';
       const monthNote=document.getElementById('monthTrendNote');if(monthNote)monthNote.textContent='海外历史序列来自 '+(window.__FOREIGN_MARKET_DATA__?.sources?.[stockSymbol.startsWith('kr')?'krDaily':'usDaily']||'已校验海外日线源')+'；页面不使用模拟K线。';
     }
     function renderForeignResearchSuite(q){
@@ -2924,7 +2933,9 @@ analystModules.push('<h2>二十二、行业扩散与主线质量：辨别普涨�
       document.getElementById('scoreMeta').textContent='海外专用模型 · 可核验日线 '+f.dataCount+' 条 · 证据强度 '+evidence;
       document.getElementById('headline').textContent=p.company+'当前为“'+trend+'、日内'+direction+'”结构。价格判断必须同时经过趋势、量能、波动和公司事件验证，不套用A股涨跌停、五档盘口或资金流口径。';
       document.getElementById('scoreBreakdown').innerHTML='<div class="analysisGrid"><article><small>RSI(14)</small><b>'+foreignMetric(f.rsi14,'')+'</b><p>识别超买、超卖与动量强弱。</p></article><article><small>MACD差值</small><b>'+foreignMetric(f.macd,'')+'</b><p>衡量EMA12与EMA26的趋势差。</p></article><article><small>ATR(14)</small><b>'+foreignMetric(f.atrPct,'%')+'</b><p>衡量真实波幅与风险空间。</p></article><article><small>量比 / 20日</small><b>'+foreignMetric(f.volRatio,'×')+'</b><p>判断突破是否得到成交确认。</p></article></div>';
-      document.getElementById('orderbook').innerHTML='<div class="boundary"><b>海外盘口数据边界：</b>当前源未提供可核验 Level 2 五档，因此不伪造买卖盘；以20日量比、ATR、日内位置和关键区间替代流动性观察。</div>';
+      const bookTitle=document.getElementById('orderbook')?.closest('.card')?.querySelector('.head h2');if(bookTitle)bookTitle.textContent='盘口与流动性';
+      const topBook=[['卖一',q.ask,q.askSize,'green'],['买一',q.bid,q.bidSize,'red']].filter(x=>Number.isFinite(+x[1]));
+      document.getElementById('orderbook').innerHTML=(topBook.length?topBook.map(x=>'<div class="row"><span class="'+x[3]+'">'+x[0]+'</span><b>'+fmt(x[1])+'</b><span class="muted">'+fmt(x[2])+'</span></div>').join(''):'')+'<div class="boundary"><b>盘口数据边界：</b>当前公开源只提供可核验的最优买一/卖一，不提供交易所授权 Level 2 完整五档；缺失档位不复制、不估算。成交量、ATR、日内位置和关键区间用于辅助观察流动性。</div>';
       document.getElementById('levels').innerHTML='<div class="level support"><small>20日支撑</small><b>'+fmt(support)+' '+currency+'</b><span>跌破后趋势证据转弱</span></div><div class="level pivot"><small>MA20 中枢</small><b>'+fmt(f.ma20)+' '+currency+'</b><span>波段多空分界</span></div><div class="level resistance"><small>20日压力</small><b>'+fmt(pressure)+' '+currency+'</b><span>放量站稳才算突破</span></div>';
       const technical='<div class="foreignKpiStrip"><div><small>5日收益</small><b>'+foreignMetric(f.ret5,'%')+'</b></div><div><small>20日收益</small><b>'+foreignMetric(f.ret20,'%')+'</b></div><div><small>RSI(14)</small><b>'+foreignMetric(f.rsi14,'')+'</b></div><div><small>MACD差值</small><b>'+foreignMetric(f.macd,'')+'</b></div><div><small>相对量能</small><b>'+foreignMetric(f.volRatio,'倍')+'</b></div></div><div class="foreignTechnicalNarrative"><article><h3>价格路径与趋势结构</h3><p>现价 <b>'+fmt(f.price)+' '+currency+'</b>，当日 '+foreignMetric(pct,'%')+'，收盘位于日内 '+foreignMetric(dayPos,'% ',0)+'位置。近5日、20日、60日收益为 '+foreignMetric(f.ret5,'%')+'、'+foreignMetric(f.ret20,'%')+'、'+foreignMetric(f.ret60,'%')+'；MA5 / MA20 / MA60 为 '+fmt(f.ma5)+' / '+fmt(f.ma20)+' / '+fmt(f.ma60)+'，当前为<b>'+trend+'</b>。</p></article><article><h3>动量、波动与回撤</h3><p>RSI '+foreignMetric(f.rsi14,'')+'，MACD差值 '+foreignMetric(f.macd,'')+'；布林带 '+fmt(f.bollLower)+' / '+fmt(f.ma20)+' / '+fmt(f.bollUpper)+'。量比 '+foreignMetric(f.volRatio,'倍')+'，ATR '+foreignMetric(f.atrPct,'%')+'，60日回撤 '+foreignMetric(f.drawdown,'%')+'。指标只用于交叉验证，不单独构成信号。</p></article><article><h3>关键位与失效条件</h3><p>20日支撑 <b>'+fmt(support)+'</b>，MA20中枢 <b>'+fmt(f.ma20)+'</b>，20日压力 <b>'+fmt(pressure)+' '+currency+'</b>。放量收于压力上方并在下一交易日守住才算有效突破；放量跌破支撑则当前修复逻辑失效。</p></article></div><div class="foreignEvidenceBar"><b>数据证据</b> · 报价 '+esc(f.quoteSource)+' · '+esc(f.quoteTime||'时间待返回')+'　|　日线 '+esc(f.dailySource)+' · 最新 '+esc(f.lastDate||'待返回')+' · '+f.dataCount+'条　|　快照 '+esc(f.generatedAt||'待返回')+'</div>';
       document.getElementById('analysis').innerHTML='<h2>'+esc(p.company)+'：可核验技术分析</h2>'+technical;
