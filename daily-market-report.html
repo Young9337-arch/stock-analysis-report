@@ -2913,6 +2913,23 @@ analystModules.push('<h2>二十二、行业扩散与主线质量：辨别普涨�
       return{rows,recent,last,price,ret5:ret(5),ret20:ret(20),ret60:ret(59),ma5,ma20,ma60,atrPct:Number.isFinite(atr14)&&price?atr14/price*100:NaN,volRatio:Number.isFinite(vol20)&&vol20&&last?last.volume/vol20:NaN,high20,low20,high60,low60,position60,upRatio,drawdown:Number.isFinite(high60)&&high60?safePct(price,high60):NaN,rsi14,macd,bollUpper:Number.isFinite(ma20)&&Number.isFinite(sd20)?ma20+2*sd20:NaN,bollLower:Number.isFinite(ma20)&&Number.isFinite(sd20)?ma20-2*sd20:NaN,dataCount:recent.length,lastDate,generatedAt,quoteTime,dailySource,quoteSource};
     }
     function foreignMetric(value,suffix='',digits=2){return Number.isFinite(value)?value.toLocaleString('zh-CN',{minimumFractionDigits:digits,maximumFractionDigits:digits})+suffix:'待验证'}
+    function renderForeignRhythmRisk({f,pct,dayPos,direction,support,pressure,currency,fmt,r}){
+      const rhythm=document.getElementById('rhythm'),risks=document.getElementById('risks');
+      const card=(label,value,note,tone)=>'<div class="step" style="background:linear-gradient(135deg,#fff 0%,'+tone[0]+' 100%);border:1px solid '+tone[1]+';border-left:4px solid '+tone[2]+'"><strong>'+label+'</strong><span style="color:'+tone[2]+';font-weight:900">'+value+'</span><small>'+note+'</small></div>';
+      const blue=['#f1f6ff','#c9dcff','#356ff6'],green=['#effbf6','#bce8d5','#138760'],amber=['#fff8eb','#f1d39a','#b77916'],red=['#fff2f3','#f4c3ca','#c83f52'],violet=['#f7f2ff','#dfcef8','#7247b8'];
+      if(rhythm)rhythm.innerHTML=[
+        card('短线方向',direction,'当日 '+foreignMetric(pct,'%')+'，收盘位于日内区间 '+foreignMetric(dayPos,'%',0),pct>=0?green:red),
+        card('趋势位置',f.price>=f.ma20?'站上 MA20':'低于 MA20','现价 '+fmt(f.price)+' / MA20 '+fmt(f.ma20)+' '+currency,f.price>=f.ma20?green:amber),
+        card('量能确认',Number.isFinite(f.volRatio)?foreignMetric(f.volRatio,'倍'):'待验证','相对20日均量；突破需量价同步',f.volRatio>=1?blue:amber),
+        card('关键区间',fmt(support)+'—'+fmt(pressure),'20日支撑至压力，区间外收盘才提高方向置信度',violet)
+      ].join('');
+      if(risks)risks.innerHTML=[
+        card('波动风险','ATR '+foreignMetric(f.atrPct,'%'),'ATR越高，仓位和入场时点的重要性越高',f.atrPct>=5?red:amber),
+        card('趋势失效','跌破 '+fmt(support),'放量跌破20日支撑，当前修复或延续假设失效',red),
+        card('假突破风险','压力 '+fmt(pressure),'突破后快速跌回压力下方，视为确认失败',amber),
+        card('基本面触发',esc(r.risks[0]||'财报、指引与监管变化'),'事件必须通过盈利预期和成交量再次验证',violet)
+      ].join('');
+    }
     function renderForeignIntentPanel({p,verified,f,pct,dayPos,score,direction,support,pressure,currency,fmt}){
       const card=document.querySelector('.intentPanel'),head=card?.querySelector('.head h2'),headNote=card?.querySelector('.head small'),host=document.getElementById('mainIntentPanel'),signals=document.getElementById('mainIntentSignals'),timeline=document.getElementById('mainIntentTimeline'),body=document.getElementById('mainIntentDetailsBody');
       if(head)head.textContent='海外资金行为与交易结构';
@@ -2937,6 +2954,7 @@ analystModules.push('<h2>二十二、行业扩散与主线质量：辨别普涨�
       const topBook=[['卖一',q.ask,q.askSize,'green'],['买一',q.bid,q.bidSize,'red']].filter(x=>Number.isFinite(+x[1]));
       document.getElementById('orderbook').innerHTML=(topBook.length?topBook.map(x=>'<div class="row"><span class="'+x[3]+'">'+x[0]+'</span><b>'+fmt(x[1])+'</b><span class="muted">'+fmt(x[2])+'</span></div>').join(''):'')+'<div class="boundary"><b>盘口数据边界：</b>当前公开源只提供可核验的最优买一/卖一，不提供交易所授权 Level 2 完整五档；缺失档位不复制、不估算。成交量、ATR、日内位置和关键区间用于辅助观察流动性。</div>';
       document.getElementById('levels').innerHTML='<div class="level support"><small>20日支撑</small><b>'+fmt(support)+' '+currency+'</b><span>跌破后趋势证据转弱</span></div><div class="level pivot"><small>MA20 中枢</small><b>'+fmt(f.ma20)+' '+currency+'</b><span>波段多空分界</span></div><div class="level resistance"><small>20日压力</small><b>'+fmt(pressure)+' '+currency+'</b><span>放量站稳才算突破</span></div>';
+      renderForeignRhythmRisk({f,pct,dayPos,direction,support,pressure,currency,fmt,r});
       const technical='<div class="foreignKpiStrip"><div><small>5日收益</small><b>'+foreignMetric(f.ret5,'%')+'</b></div><div><small>20日收益</small><b>'+foreignMetric(f.ret20,'%')+'</b></div><div><small>RSI(14)</small><b>'+foreignMetric(f.rsi14,'')+'</b></div><div><small>MACD差值</small><b>'+foreignMetric(f.macd,'')+'</b></div><div><small>相对量能</small><b>'+foreignMetric(f.volRatio,'倍')+'</b></div></div><div class="foreignTechnicalNarrative"><article><h3>价格路径与趋势结构</h3><p>现价 <b>'+fmt(f.price)+' '+currency+'</b>，当日 '+foreignMetric(pct,'%')+'，收盘位于日内 '+foreignMetric(dayPos,'% ',0)+'位置。近5日、20日、60日收益为 '+foreignMetric(f.ret5,'%')+'、'+foreignMetric(f.ret20,'%')+'、'+foreignMetric(f.ret60,'%')+'；MA5 / MA20 / MA60 为 '+fmt(f.ma5)+' / '+fmt(f.ma20)+' / '+fmt(f.ma60)+'，当前为<b>'+trend+'</b>。</p></article><article><h3>动量、波动与回撤</h3><p>RSI '+foreignMetric(f.rsi14,'')+'，MACD差值 '+foreignMetric(f.macd,'')+'；布林带 '+fmt(f.bollLower)+' / '+fmt(f.ma20)+' / '+fmt(f.bollUpper)+'。量比 '+foreignMetric(f.volRatio,'倍')+'，ATR '+foreignMetric(f.atrPct,'%')+'，60日回撤 '+foreignMetric(f.drawdown,'%')+'。指标只用于交叉验证，不单独构成信号。</p></article><article><h3>关键位与失效条件</h3><p>20日支撑 <b>'+fmt(support)+'</b>，MA20中枢 <b>'+fmt(f.ma20)+'</b>，20日压力 <b>'+fmt(pressure)+' '+currency+'</b>。放量收于压力上方并在下一交易日守住才算有效突破；放量跌破支撑则当前修复逻辑失效。</p></article></div><div class="foreignEvidenceBar"><b>数据证据</b> · 报价 '+esc(f.quoteSource)+' · '+esc(f.quoteTime||'时间待返回')+'　|　日线 '+esc(f.dailySource)+' · 最新 '+esc(f.lastDate||'待返回')+' · '+f.dataCount+'条　|　快照 '+esc(f.generatedAt||'待返回')+'</div>';
       document.getElementById('analysis').innerHTML='<h2>'+esc(p.company)+'：可核验技术分析</h2>'+technical;
       drawForeignVerifiedCharts(q,lastMonthDaily,lastMinutes);
