@@ -2061,7 +2061,8 @@ function renderMetrics(q,pct,amp,pos){renderQuoteFacts(q);const pctTone=pct>0?'r
     }
     /* Foreign research iteration 2/5 — full company profile, no generic three-card outline. */
     function foreignResearchCards(title,items,tone=''){
-      return '<section class="foreignResearchCards '+tone+'"><h3>'+esc(title)+'</h3>'+items.map((x,i)=>'<article><small>'+String(i+1).padStart(2,'0')+'</small><b>'+esc(x)+'</b></article>').join('')+'</section>';
+      const rows=Array.isArray(items)?items:(items===undefined||items===null||items===''?[]:[items]);
+      return '<section class="foreignResearchCards '+tone+'"><h3>'+esc(title)+'</h3>'+(rows.length?rows.map((x,i)=>'<article><small>'+String(i+1).padStart(2,'0')+'</small><b>'+esc(x)+'</b></article>').join(''):'<article><small>--</small><b>相关内容待可靠来源核验</b></article>')+'</section>';
     }
     function buildForeignCompanySummary(q){
       const p=foreignCompanyIdentity(stockSymbol,q.name),r=foreignResearchBlueprint(p.ticker),price=Number(q.price),pct=Number.isFinite(price)&&Number(q.prev)?safePct(price,Number(q.prev)):NaN;
