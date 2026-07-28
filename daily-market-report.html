@@ -2838,7 +2838,25 @@ analystModules.push('<h2>二十二、行业扩散与主线质量：辨别普涨�
     }
     function drawForeignVerifiedCharts(q,daily,minutes){
       const rows=(daily||[]).filter(x=>Number.isFinite(+x.close)&&Number.isFinite(+x.high)&&Number.isFinite(+x.low)),recent=rows.slice(-60),dates=recent.map(x=>x.date),closes=recent.map(x=>+x.close),volumes=recent.map(x=>+x.volume||0),returns=recent.map((x,i)=>i?safePct(x.close,recent[i-1].close):0),color='#356ff6';
-      const set=(id,option)=>{const el=document.getElementById(id);if(!el||!window.echarts)return;el.innerHTML='';const chart=echarts.getInstanceByDom(el)||echarts.init(el);chart.setOption(option,true);chart.resize()};
+      const set=(id,option)=>{
+        const el=document.getElementById(id);
+        if(!el||!window.echarts)return;
+        /*
+         * 海外研究套件会在行情、历史序列与布局稳定后重复渲染。不能在已存在
+         * ECharts 实例时清空容器 DOM，否则 canvas 会被移除而实例仍被复用，
+         * 最终只留下一个有高度的空白卡片。
+         */
+        let chart=echarts.getInstanceByDom(el);
+        if(!chart){
+          el.replaceChildren();
+          chart=echarts.init(el);
+        }else{
+          chart.clear();
+        }
+        chart.setOption(option,true);
+        chart.resize();
+        requestAnimationFrame(()=>{if(!chart.isDisposed())chart.resize()});
+      };
       const grid={left:52,right:24,top:38,bottom:42},axis={axisLine:{lineStyle:{color:'#dbe3ee'}},axisLabel:{color:'#718096'},axisTick:{show:false}},split={lineStyle:{color:'#edf2f7'}};
       if(recent.length){
         set('minuteEChart',{tooltip:{trigger:'axis'},grid,xAxis:{...axis,type:'category',data:dates,boundaryGap:false},yAxis:{...axis,type:'value',scale:true,splitLine:split},series:[{type:'line',data:closes,symbol:'none',smooth:.22,lineStyle:{width:3,color},areaStyle:{color:'rgba(53,111,246,.10)'}}]});
